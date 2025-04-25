@@ -16,7 +16,7 @@ sgdisk --zap-all $DISK || exit
 sgdisk -a1 -n1:24K:+1000K -t1:EF02 $DISK
 # EFI
 sgdisk     -n2:1M:+1G -t2:EF00 $DISK || exit
-# boot
+# boot,root,swap
 sgdisk     -n3:0:+2G  -t3:BF01 $DISK || exit
 sgdisk     -n4:0:-8G  -t4:BF00 $DISK || exit
 sgdisk     -n5:-8G:0  -t5:8200 $DISK || exit
