@@ -19,7 +19,9 @@ mkdir /boot/efi
 echo /dev/disk/by-uuid/$(blkid -s UUID -o value ${DISK}2) \
    /boot/efi vfat defaults 0 0 >> /etc/fstab
 mount /boot/efi
-apt install --yes grub-efi-amd64 shim-signed
+
+ARCH=`uname -r | cut -f 2 -d "-"`
+apt install --yes grub-efi-${ARCH} shim-signed
 
 # clean up
 apt purge --yes os-prober
@@ -52,6 +54,7 @@ systemctl enable tmp.mount
 
 apt install --yes openssh-server
 
+
 cat<<EOF >> /etc/ssh/sshd_config
 PermitRootLogin yes
 EOF
@@ -68,8 +71,12 @@ sed -i 's#^\(GRUB_CMDLINE_LINUX="\)"$#\1root=ZFS=rpool/ROOT/debian"#' /etc/defau
 sed -i 's#^\#\(GRUB_TERMINAL=console"\)"$#\1"#' /etc/default/grub
 
 update-grub
+TARGET=${ARCH}
+if [ "$TARGET" == "amd64" ] ; then
+    TARGET="x86_64"
+fi
 
-grub-install --target=arm64-efi --efi-directory=/boot/efi \
+grub-install --target=${TARGET}-efi --efi-directory=/boot/efi \
 	     --bootloader-id=debian --recheck --no-floppy
 # 
 mkdir /etc/zfs/zfs-list.cache
