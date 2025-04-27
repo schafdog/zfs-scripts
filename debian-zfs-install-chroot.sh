@@ -14,9 +14,9 @@ apt install systemd-timesyncd
 
 # Grub for UEFI
 apt install dosfstools
-mkdosfs -F 32 -s 1 -n EFI ${DISK}-part2
+mkdosfs -F 32 -s 1 -n EFI ${DISK}2
 mkdir /boot/efi
-echo /dev/disk/by-uuid/$(blkid -s UUID -o value ${DISK}-part2) \
+echo /dev/disk/by-uuid/$(blkid -s UUID -o value ${DISK}2) \
    /boot/efi vfat defaults 0 0 >> /etc/fstab
 mount /boot/efi
 apt install --yes grub-efi-amd64 shim-signed
@@ -52,24 +52,24 @@ systemctl enable tmp.mount
 
 apt install --yes openssh-server
 
-vi /etc/ssh/sshd_config
-# Set: PermitRootLogin yes
+cat<<EOF >> /etc/ssh/sshd_config
+PermitRootLogin yes
+EOF
 
 # GRUB installation
 grub-probe /boot
 update-initramfs -c -k all
 
-vi /etc/default/grub
-# Set: GRUB_CMDLINE_LINUX="root=ZFS=rpool/ROOT/debian"
-
-vi /etc/default/grub
 # Remove quiet from: GRUB_CMDLINE_LINUX_DEFAULT
+sed -i 's#^\(GRUB_CMDLINE_LINUX_DEFAULT="\)"$#\1"#' /etc/default/grub
+# Set: GRUB_CMDLINE_LINUX="root=ZFS=rpool/ROOT/debian"
+sed -i 's#^\(GRUB_CMDLINE_LINUX="\)"$#\1root=ZFS=rpool/ROOT/debian"#' /etc/default/grub
 # Uncomment: GRUB_TERMINAL=console
-# Save and quit.
+sed -i 's#^\#\(GRUB_TERMINAL=console"\)"$#\1"#' /etc/default/grub
 
 update-grub
 
-grub-install --target=x86_64-efi --efi-directory=/boot/efi \
+grub-install --target=arm64-efi --efi-directory=/boot/efi \
 	     --bootloader-id=debian --recheck --no-floppy
 # 
 mkdir /etc/zfs/zfs-list.cache
