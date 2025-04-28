@@ -76,8 +76,7 @@ if [ "$TARGET" == "amd64" ] ; then
     TARGET="x86_64"
 fi
 
-grub-install --target=${TARGET}-efi --efi-directory=/boot/efi \
-	     --bootloader-id=debian --recheck --no-floppy
+grub-install --target=${TARGET}-efi --efi-directory=/boot/efi --bootloader-id=debian --recheck --no-floppy
 # 
 mkdir /etc/zfs/zfs-list.cache
 touch /etc/zfs/zfs-list.cache/bpool
